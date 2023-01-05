@@ -4,7 +4,6 @@ import bodyParser from './middlewares/bodyParser';
 import { allRoutes, router } from './routes/index.routes';
 
 function createServer() {
-  //   console.log({ process.env.NODE_ENV === 'test' ? appEnv.testPort : })
   const app = new Application({
     port: process.env.NODE_ENV === 'test' ? appEnv.testPort : appEnv.port,
     routes: allRoutes,
