@@ -1,26 +1,25 @@
-import { DatabaseTables } from 'src/constants/db.constants';
-import database from 'src/db/db';
 import { CreateUserDto, UpdateUserDto } from './user.interface';
+import userRepository from './user.repository';
 
 class UserService {
   async getAllUsers() {
-    return await database.find(DatabaseTables.Users);
+    return userRepository.getAllUsers();
   }
 
   async getUserById(id: string) {
-    return await database.findOne(DatabaseTables.Users, id);
+    return userRepository.getUserById(id);
   }
 
   async createUser(body: CreateUserDto) {
-    return await database.create<CreateUserDto>(DatabaseTables.Users, body);
+    return userRepository.createUser(body);
   }
 
   async updateUser(id: string, data: UpdateUserDto) {
-    return await database.update<UpdateUserDto>(DatabaseTables.Users, id, data);
+    return userRepository.updateUser(id, data);
   }
 
   async deleteUser(id: string) {
-    return await database.delete(DatabaseTables.Users, id);
+    return userRepository.deleteUser(id);
   }
 }
 

@@ -1,11 +1,17 @@
-import { appEnv } from './config/env';
-import Application from './framework/application';
+import cluster from 'cluster';
+import appEnv from './config/env';
+import BaseApplication from './framework/baseApplication';
+import ClusterApplication from './framework/clusterApplication';
 import bodyParser from './middlewares/bodyParser';
 import { allRoutes, router } from './routes/index.routes';
 
 function createServer() {
+  const Application =
+    appEnv.isCluster && cluster.isPrimary
+      ? ClusterApplication
+      : BaseApplication;
+
   const app = new Application({
-    port: process.env.NODE_ENV === 'test' ? appEnv.testPort : appEnv.port,
     routes: allRoutes,
   });
 

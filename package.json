@@ -7,10 +7,11 @@
   "license": "MIT",
   "scripts": {
     "test": "cross-env NODE_PATH=. NODE_ENV=test jest --detectOpenHandles",
-    "build": "cross-env NODE_ENV=production tsc",
+    "build": "cross-env NODE_ENV=development  NODE_PATH=. tsc",
     "start": "node build/main.js",
-    "start:dev": "cross-env NODE_PATH=. NODE_ENV=development nodemon src/main.ts",
-    "start:prod": "npm run build && npm run start"
+    "start:dev": "cross-env NODE_ENV=development  NODE_PATH=. nodemon src/main.ts",
+    "start:prod": "npm run build && npm run start",
+    "start:multi": "npm run start:dev -- --multi"
   },
   "dependencies": {
     "cross-env": "^7.0.3",

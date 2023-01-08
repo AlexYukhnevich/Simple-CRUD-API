@@ -1,5 +1,8 @@
 import Router from '../framework/router';
-import { usersRoutesConfig, usersEndpoints } from './users.routes';
+import {
+  usersRoutesConfig,
+  usersEndpoints,
+} from 'src/components/user/user.routes';
 
 const routesConfig = [...usersRoutesConfig];
 const allRoutes = [...usersEndpoints];
