@@ -8,7 +8,7 @@ import { MessageType } from 'src/constants/process.constants';
 
 export const masterProcess = (app: BaseApplication) => {
   const NUM_CPUS = os.cpus().length;
-  const DATABASE_PATH = path.resolve(process.cwd(), 'db/db.ts');
+  const DATABASE_PATH = path.resolve(process.cwd(), 'src/db/db.ts');
   const dbProcess = fork(DATABASE_PATH);
 
   if (cluster.isPrimary) {

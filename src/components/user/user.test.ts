@@ -4,9 +4,13 @@ import {
 } from 'src/components/user/user.interface';
 import { HttpStatus } from 'src/constants/http.constants';
 import request from 'supertest';
-import { server } from 'src/main';
+import { app } from 'src/main';
+import appEnv from 'src/config/env';
+import { Server, IncomingMessage, ServerResponse } from 'http';
 
-describe('Users', () => {
+let server: Server<typeof IncomingMessage, typeof ServerResponse>;
+
+describe('Scenario 1', () => {
   let userId: string;
   const payload: CreateUserDto = {
     username: 'John Doe',
@@ -14,43 +18,58 @@ describe('Users', () => {
     hobbies: ['programming', 'node.js'],
   };
 
+  beforeAll(() => {
+    server = app.listenServer(appEnv.port);
+  });
+
   afterAll(async () => {
     await server.close();
   });
 
   describe('1.Get users', () => {
     it('GET /api/users', async () => {
-      return await request(server)
+      const response = await request(server)
         .get('/api/users')
         .expect(HttpStatus.OK)
-        .expect({ statusCode: HttpStatus.OK, data: [] });
+        .expect((res) => {
+          res.body = JSON.parse(res.text);
+        });
+      expect(response.body).toEqual({ statusCode: HttpStatus.OK, data: [] });
     });
   });
 
   describe('2.Create user', () => {
     it('POST /api/users', async () => {
-      const data = await request(server)
+      const response = await request(server)
         .post('/api/users')
         .send(payload)
         .expect(HttpStatus.CREATED)
-        .expect((res) => ({
-          statusCode: HttpStatus.CREATED,
-          data: res.body.data,
-        }));
+        .expect((res) => {
+          res.body = JSON.parse(res.text);
+        });
 
-      userId = data.body.data.id;
+      expect(response.body).toEqual({
+        statusCode: HttpStatus.CREATED,
+        data: { ...payload, id: response.body.data.id },
+      });
+
+      userId = response.body.data.id;
     });
   });
 
   describe('3.Get user by id', () => {
     it('GET /api/users/:id', async () => {
-      await request(server)
+      const response = await request(server)
         .get(`/api/users/${userId}`)
         .expect(HttpStatus.OK)
-        .expect({
-          statusCode: HttpStatus.OK,
-          data: { id: userId, ...payload },
+        .expect((res) => {
+          res.body = JSON.parse(res.text);
         });
+
+      expect(response.body).toEqual({
+        statusCode: HttpStatus.OK,
+        data: { id: userId, ...payload },
+      });
     });
   });
 
@@ -61,14 +80,18 @@ describe('Users', () => {
         hobbies: ['traveling'],
       };
 
-      await request(server)
+      const response = await request(server)
         .put(`/api/users/${userId}`)
         .send(payload)
         .expect(HttpStatus.OK)
-        .expect((res) => ({
-          statusCode: HttpStatus.CREATED,
-          data: { ...res.body.data, ...payload },
-        }));
+        .expect((res) => {
+          res.body = JSON.parse(res.text);
+        });
+
+      expect(response.body).toEqual({
+        statusCode: HttpStatus.OK,
+        data: { ...payload, ...response.body.data },
+      });
     });
   });
 
@@ -82,13 +105,17 @@ describe('Users', () => {
 
   describe('6.Get user by id after removal', () => {
     it('GET /api/users/:id', async () => {
-      await request(server)
+      const response = await request(server)
         .get(`/api/users/${userId}`)
         .expect(HttpStatus.NOT_FOUND)
-        .expect({
-          statusCode: HttpStatus.NOT_FOUND,
-          errorMessage: 'User not found',
+        .expect((res) => {
+          res.body = JSON.parse(res.text);
         });
+
+      expect(response.body).toEqual({
+        statusCode: HttpStatus.NOT_FOUND,
+        errorMessage: 'User not found',
+      });
     });
   });
 });
