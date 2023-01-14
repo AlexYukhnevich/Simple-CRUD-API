@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-vars */
 import { v4 as uuidv4 } from 'uuid';
-import { DatabaseTables } from 'src/constants/db.constants';
-import { isObject } from 'src/utils/typeCheck.utils';
-import { MessageType } from 'src/constants/process.constants';
+import { DatabaseTables } from '../constants/db.constants';
+import { isObject } from '../utils/typeCheck.utils';
+import { MessageType } from '../constants/process.constants';
 
 type DbEntity = { id: string; [key: string]: unknown };
 
@@ -57,11 +57,11 @@ class Database implements Db {
 
     this.tables[model] = await Promise.resolve(
       this.tables[model].map((entity) =>
-        entity.id === data.id ? { ...entity, ...data } : entity
+        entity.id === data.id ? { ...entity, ...data.data } : entity
       )
     );
 
-    return { ...foundUser, ...data };
+    return { ...foundUser, ...data.data };
   }
 
   async delete(model: DatabaseTables, data: { id: string }) {

@@ -1,4 +1,4 @@
-import { MimeType } from 'src/constants/http.constants';
+import { MimeType } from '../constants/http.constants';
 
 export type Response = {
   statusCode: number;

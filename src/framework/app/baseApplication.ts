@@ -1,18 +1,20 @@
 import http, { Server, IncomingMessage, ServerResponse } from 'http';
 import { EventEmitter } from 'events';
-import { AppConfig, RoutesCollection } from 'src/interfaces/app.interface';
-import { isString } from 'src/utils/typeCheck.utils';
-import { MiddlewareHandler, Response } from 'src/interfaces/common.interface';
-import { getUrlMeta } from 'src/utils/parseUrl.utils';
-import { NotFoundError } from 'src/errors/client.error';
-import HttpException from 'src/errors/http-exception.error';
-import { toJSON } from 'src/utils/json.utils';
+import { AppConfig, RoutesCollection } from '../../interfaces/app.interface';
+import { MiddlewareHandler, Response } from '../../interfaces/common.interface';
+import { getUrlMeta } from '../../utils/parseUrl.utils';
+import { isString } from '../../utils/typeCheck.utils';
+import { BadRequestError, NotFoundError } from '../../errors/client.error';
+import HttpException from '../../errors/http-exception.error';
+import { toJSON } from '../../utils/json.utils';
 import {
   MimeType,
   responseMap,
   HttpStatus,
-} from 'src/constants/http.constants';
-import appEnv from 'src/config/env';
+  HttpMethod,
+} from '../../constants/http.constants';
+import appEnv from '../../config/env';
+import { ERROR_MESSAGES } from '../../constants/error.constants';
 
 export default class BaseApplication extends EventEmitter {
   server: Server<typeof IncomingMessage, typeof ServerResponse>;
@@ -61,27 +63,28 @@ export default class BaseApplication extends EventEmitter {
       }
 
       try {
-        if (isString(req.url) && isString(req.method)) {
-          const { endpoint, params } = getUrlMeta(
-            this.config.routes,
-            req.url as string
+        this.validateRequestFields(req);
+        const { endpoint, params } = getUrlMeta(
+          this.config.routes,
+          req.url as string
+        );
+        // @ts-ignore
+        req.params = params;
+
+        for (const middleware of this.middlewares) {
+          await middleware(req, res);
+        }
+
+        const eventMask = this.generateEventMask(
+          endpoint,
+          req.method as string
+        );
+        const isEmitted = this.emit(eventMask, req, res);
+
+        if (!isEmitted) {
+          throw new NotFoundError(
+            ERROR_MESSAGES[HttpStatus.NOT_FOUND]?.entityNotFound('Endpoint')
           );
-          // @ts-ignore
-          req.params = params;
-
-          for (const middleware of this.middlewares) {
-            await middleware(req, res);
-          }
-
-          const eventMask = this.generateEventMask(
-            endpoint,
-            req.method as string
-          );
-          const isEmitted = this.emit(eventMask, req, res);
-
-          if (!isEmitted) {
-            throw new NotFoundError('Endpoint Not Found');
-          }
         }
       } catch (err: unknown) {
         this.catchInterceptor(req, res, err);
@@ -108,6 +111,39 @@ export default class BaseApplication extends EventEmitter {
       .end(
         data.statusCode !== HttpStatus.NO_CONTENT ? toJSON(data) : undefined
       );
+  }
+
+  protected validateRequestFields(req: IncomingMessage) {
+    if (!isString(req.url)) {
+      throw new BadRequestError(
+        ERROR_MESSAGES[HttpStatus.BAD_REQUEST]?.incorrectFieldDataType(
+          'url',
+          'string'
+        )
+      );
+    }
+
+    if (!isString(req.method)) {
+      throw new BadRequestError(
+        ERROR_MESSAGES[HttpStatus.BAD_REQUEST]?.incorrectFieldDataType(
+          'method',
+          'string'
+        )
+      );
+    }
+
+    const availableHttpMethods = Object.values(HttpMethod).map((method) =>
+      method.toUpperCase()
+    );
+
+    if (!availableHttpMethods.includes((req.method as string).toUpperCase())) {
+      throw new BadRequestError(
+        ERROR_MESSAGES[HttpStatus.BAD_REQUEST]?.forbiddenOptions(
+          req.method as string,
+          availableHttpMethods
+        )
+      );
+    }
   }
 
   protected catchInterceptor(req: any, res: any, err: unknown) {

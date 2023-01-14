@@ -1,7 +1,7 @@
 import cluster from 'cluster';
 import appEnv from './config/env';
-import BaseApplication from './framework/baseApplication';
-import ClusterApplication from './framework/clusterApplication';
+import BaseApplication from './framework/app/baseApplication';
+import ClusterApplication from './framework/app/clusterApplication';
 import bodyParser from './middlewares/bodyParser';
 import { allRoutes, router } from './routes/index.routes';
 

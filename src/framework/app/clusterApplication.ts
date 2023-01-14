@@ -1,7 +1,7 @@
 import http, { Server, IncomingMessage, ServerResponse } from 'http';
-import { HttpMethod, HttpStatus } from 'src/constants/http.constants';
-import { AppConfig } from 'src/interfaces/app.interface';
-import { isString } from 'src/utils/typeCheck.utils';
+import { HttpMethod, HttpStatus } from '../../constants/http.constants';
+import { AppConfig } from '../../interfaces/app.interface';
+import { isString } from '../../utils/typeCheck.utils';
 
 import Application from './baseApplication';
 
@@ -36,6 +36,8 @@ export default class ClusterApplication extends Application {
       console.log(`Load balancer port: ${process.env.PORT}`);
 
       try {
+        this.validateRequestFields(req);
+
         const server = this.servers[this._currentServer];
         this.currentServer = this.currentServer + 1;
 

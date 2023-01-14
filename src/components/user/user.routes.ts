@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-vars */
-import { HttpMethod } from 'src/constants/http.constants';
-import userController from 'src/components/user/user.controller';
-import { RouteConfig } from 'src/interfaces/routes.interface';
-import userValidator from 'src/components/user/user.validator';
+import { HttpMethod } from '../../constants/http.constants';
+import userController from '../../components/user/user.controller';
+import { RouteConfig } from '../../interfaces/routes.interface';
+import userValidator from '../../components/user/user.validator';
 
 export enum UsersEndpoint {
   ById = '/api/users/:id',

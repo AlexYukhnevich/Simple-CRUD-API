@@ -8,7 +8,7 @@ const appEnv = {
   protocol: 'http',
   host: 'localhost',
   env: process.env.NODE_ENV,
-  isCluster: !!process.argv.slice(2).find((cmd) => cmd === '--multi'),
+  isCluster: !!process.argv.slice(2).find((cmd) => cmd === 'multi'),
 };
 
 export default appEnv;

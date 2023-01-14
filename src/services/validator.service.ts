@@ -1,14 +1,14 @@
+import { validate as uuidValidate } from 'uuid';
+
+export type ValidationRange = { max: number; min: number };
+
 export class Validator {
   protected isValidUUID(id: string) {
-    // Regular expression to check if string is a valid UUID
-    const uuidPattern =
-      /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
-    return uuidPattern.test(id);
+    return uuidValidate(id);
   }
 
   protected isInt(value: unknown) {
-    const parsedNumber = Number(value);
-    return !isNaN(parsedNumber);
+    return Number.isInteger(value);
   }
 
   protected isString(value: unknown) {
@@ -24,7 +24,7 @@ export class Validator {
     return length >= min && length <= max;
   }
 
-  protected isRange(value: number, range: { min: number; max: number }) {
+  protected isRange(value: number, range: ValidationRange) {
     const { min, max } = range;
     return value >= min && value <= max;
   }

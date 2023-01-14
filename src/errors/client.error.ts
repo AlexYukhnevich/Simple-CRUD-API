@@ -1,4 +1,4 @@
-import HttpException from 'src/errors/http-exception.error';
+import HttpException from './http-exception.error';
 
 export class NotFoundError extends HttpException {
   constructor(message = 'Not Found') {

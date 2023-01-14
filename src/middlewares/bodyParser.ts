@@ -1,9 +1,9 @@
-import { BadRequestError } from 'src/errors/client.error';
+import { BadRequestError } from '../errors/client.error';
 import {
   ClientRequestType,
   ServerResponseType,
-} from 'src/interfaces/http.interface';
-import { isJSON } from 'src/utils/json.utils';
+} from '../interfaces/http.interface';
+import { isJSON } from '../utils/json.utils';
 
 const bodyParser = async (req: ClientRequestType, res: ServerResponseType) =>
   new Promise((resolve, reject) => {

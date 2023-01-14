@@ -1,32 +1,57 @@
-import { userFieldsCollection } from 'src/constants/db.constants';
-import { BadRequestError } from 'src/errors/client.error';
+import {
+  HttpStatus,
+  ERROR_MESSAGES,
+  userFieldsCollection,
+} from '../../constants';
+import { BadRequestError } from '../../errors/client.error';
 import {
   ClientRequestType,
   ServerResponseType,
-} from 'src/interfaces/http.interface';
-import { Validator } from 'src/services/validator.service';
+} from '../../interfaces/http.interface';
+import { ValidationRange, Validator } from '../../services/validator.service';
 import { CreateUserDto, UpdateUserDto } from './user.interface';
 
 export class UserValidator extends Validator {
   private checkUsername(username: unknown) {
     if (!this.isString(username)) {
-      throw new BadRequestError('Field "username" must have "string" type');
+      throw new BadRequestError(
+        ERROR_MESSAGES[HttpStatus.BAD_REQUEST]?.incorrectFieldDataType(
+          'username',
+          'string'
+        )
+      );
     }
   }
 
   private checkAge(age: unknown) {
     if (!this.isInt(age)) {
-      throw new BadRequestError('Field "age" must have "int" type');
+      throw new BadRequestError(
+        ERROR_MESSAGES[HttpStatus.BAD_REQUEST]?.incorrectFieldDataType(
+          'age',
+          'int'
+        )
+      );
     }
 
-    if (!this.isRange(age as number, { max: 100, min: 1 })) {
-      throw new BadRequestError('Field "age" must be more 0 but less than 101');
+    const ageRange: ValidationRange = { min: 1, max: 100 };
+    if (!this.isRange(age as number, ageRange)) {
+      throw new BadRequestError(
+        ERROR_MESSAGES[HttpStatus.BAD_REQUEST]?.incorrectFieldRange(
+          'age',
+          ageRange
+        )
+      );
     }
   }
 
   private checkHobbies(hobbies: unknown[]) {
     if (!this.isArray(hobbies)) {
-      throw new BadRequestError('Field "hobbies" must have array');
+      throw new BadRequestError(
+        ERROR_MESSAGES[HttpStatus.BAD_REQUEST]?.incorrectFieldDataType(
+          'hobbies',
+          'array'
+        )
+      );
     }
 
     if (
@@ -35,7 +60,10 @@ export class UserValidator extends Validator {
       !Object.values(hobbies).every(this.isString)
     ) {
       throw new BadRequestError(
-        'Field "hobbies" must have only "string" type inside array'
+        ERROR_MESSAGES[HttpStatus.BAD_REQUEST]?.incorrectArrayFieldDataType(
+          'hobbies',
+          'string'
+        )
       );
     }
   }
@@ -44,11 +72,18 @@ export class UserValidator extends Validator {
     const id = params?.id;
 
     if (!id) {
-      throw new BadRequestError('"id" must be specified');
+      throw new BadRequestError(
+        ERROR_MESSAGES[HttpStatus.BAD_REQUEST]?.requiredParam('id')
+      );
     }
 
     if (!this.isValidUUID(id)) {
-      throw new BadRequestError('"id" does not match UUID pattern');
+      throw new BadRequestError(
+        ERROR_MESSAGES[HttpStatus.BAD_REQUEST]?.incorrectParamPattern(
+          'id',
+          'UUID'
+        )
+      );
     }
   }
 
@@ -64,9 +99,26 @@ export class UserValidator extends Validator {
     res: ServerResponseType
   ) => {
     const body = req.body as unknown as CreateUserDto;
+    const requiredFields = Array.from(userFieldsCollection);
 
-    if (!Array.from(userFieldsCollection).every((field) => field in body)) {
-      throw new BadRequestError('Must be specified all required fields');
+    const hasAllRequiredFields = requiredFields.every((field) => field in body);
+    if (!hasAllRequiredFields) {
+      throw new BadRequestError(
+        ERROR_MESSAGES[HttpStatus.BAD_REQUEST]?.requiredFields(requiredFields)
+      );
+    }
+
+    const hasExtraFields = Object.keys(body).some(
+      (bodyField) => !userFieldsCollection.has(bodyField)
+    );
+
+    if (hasExtraFields) {
+      const extraFields = Object.keys(body).filter(
+        (bodyField) => !userFieldsCollection.has(bodyField)
+      );
+      throw new BadRequestError(
+        ERROR_MESSAGES[HttpStatus.BAD_REQUEST]?.extraFields(extraFields)
+      );
     }
 
     this.checkUsername(body.username);
@@ -79,10 +131,18 @@ export class UserValidator extends Validator {
     res: ServerResponseType
   ) => {
     this.validateParams(req.params);
-    const body = req.body as unknown as UpdateUserDto;
 
-    if (!Object.keys(body).every((field) => userFieldsCollection.has(field))) {
-      throw new BadRequestError('Incorrect fields');
+    const body = req.body as unknown as UpdateUserDto;
+    const hasExtraFields = Object.keys(body).some(
+      (bodyField) => !userFieldsCollection.has(bodyField)
+    );
+    if (hasExtraFields) {
+      const extraFields = Object.keys(body).filter(
+        (bodyField) => !userFieldsCollection.has(bodyField)
+      );
+      throw new BadRequestError(
+        ERROR_MESSAGES[HttpStatus.BAD_REQUEST]?.extraFields(extraFields)
+      );
     }
 
     if (body.username) this.checkUsername(body.username);

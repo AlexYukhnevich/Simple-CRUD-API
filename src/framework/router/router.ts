@@ -1,10 +1,10 @@
-import { RoutesCollection } from 'src/interfaces/app.interface';
+import { RoutesCollection } from '../../interfaces/app.interface';
 import {
   ControllerHandler,
   ValidatorHandler,
-} from 'src/interfaces/common.interface';
-import { RouteConfig } from 'src/interfaces/routes.interface';
-import { HttpMethod } from 'src/constants/http.constants';
+} from '../../interfaces/common.interface';
+import { RouteConfig } from '../../interfaces/routes.interface';
+import { HttpMethod } from '../../constants/http.constants';
 
 // Schema
 // route = {

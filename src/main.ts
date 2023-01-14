@@ -1,8 +1,7 @@
-import createServer from './server';
 import cluster from 'node:cluster';
 import appEnv from './config/env';
-import { masterProcess } from './processes/master.process';
-import { workerProcess } from './processes/worker.process';
+import createServer from './server';
+import { masterProcess, workerProcess } from './processes';
 
 const app = createServer();
 

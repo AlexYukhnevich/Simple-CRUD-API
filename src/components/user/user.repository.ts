@@ -1,9 +1,9 @@
-import appEnv from 'src/config/env';
-import { DatabaseTables } from 'src/constants/db.constants';
-import { database } from 'src/db/db';
+import appEnv from '../../config/env';
+import { DatabaseTables } from '../../constants/db.constants';
+import { database } from '../../db/db';
 import { CreateUserDto, UpdateUserDto } from './user.interface';
-import { isObject } from 'src/utils/typeCheck.utils';
-import { MessageType } from 'src/constants/process.constants';
+import { isObject } from '../../utils/typeCheck.utils';
+import { MessageType } from '../../constants/process.constants';
 
 type UsersRepositoryMessage = {
   type: string;
@@ -59,7 +59,7 @@ class UserRepository {
       process.send?.({
         method: 'update',
         model: DatabaseTables.Users,
-        data: { ...data, id },
+        data: { data, id },
       });
       return this.listenMessage();
     } else {

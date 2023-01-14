@@ -1,9 +1,9 @@
 /* eslint-disable no-unused-vars */
-import { HttpMethod } from 'src/constants/http.constants';
+import { HttpMethod } from '../constants/http.constants';
 import {
   ControllerHandler,
   ValidatorHandler,
-} from 'src/interfaces/common.interface';
+} from '../interfaces/common.interface';
 
 type EndpointData = {
   [key in HttpMethod]?: {

@@ -1,11 +1,12 @@
 import userService from './user.service';
-import { HttpStatus } from 'src/constants/http.constants';
-import { NotFoundError } from 'src/errors/client.error';
+import { HttpStatus } from '../../constants/http.constants';
+import { NotFoundError } from '../../errors/client.error';
 import {
   ClientRequestType,
   ServerResponseType,
-} from 'src/interfaces/http.interface';
+} from '../../interfaces/http.interface';
 import { CreateUserDto } from './user.interface';
+import { ERROR_MESSAGES } from '../../constants/error.constants';
 
 class UserController {
   getAllUsers = async (req: ClientRequestType, res: ServerResponseType) => {
@@ -19,7 +20,9 @@ class UserController {
     const foundUser = await userService.getUserById(userId);
 
     if (!foundUser) {
-      throw new NotFoundError('User not found');
+      throw new NotFoundError(
+        ERROR_MESSAGES[HttpStatus.NOT_FOUND]?.entityNotFound?.('User')
+      );
     }
 
     return { data: foundUser, statusCode: HttpStatus.OK };
@@ -37,7 +40,9 @@ class UserController {
     const foundUser = await userService.updateUser(userId, req.body);
 
     if (!foundUser) {
-      throw new NotFoundError('User not found');
+      throw new NotFoundError(
+        ERROR_MESSAGES[HttpStatus.NOT_FOUND]?.entityNotFound?.('User')
+      );
     }
 
     return { data: foundUser, statusCode: HttpStatus.OK };
@@ -48,7 +53,9 @@ class UserController {
     const deletedUser = await userService.deleteUser(userId);
 
     if (!deletedUser) {
-      throw new NotFoundError('User not found');
+      throw new NotFoundError(
+        ERROR_MESSAGES[HttpStatus.NOT_FOUND]?.entityNotFound?.('User')
+      );
     }
 
     return { statusCode: HttpStatus.NO_CONTENT };

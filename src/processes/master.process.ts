@@ -2,13 +2,13 @@ import os from 'os';
 import { fork } from 'child_process';
 import path from 'path';
 import cluster, { Worker } from 'cluster';
-import appEnv from 'src/config/env';
-import BaseApplication from 'src/framework/baseApplication';
-import { MessageType } from 'src/constants/process.constants';
+import appEnv from '../config/env';
+import BaseApplication from '../framework/app/baseApplication';
+import { MessageType } from '../constants/process.constants';
 
 export const masterProcess = (app: BaseApplication) => {
   const NUM_CPUS = os.cpus().length;
-  const DATABASE_PATH = path.resolve(process.cwd(), 'src/db/db.ts');
+  const DATABASE_PATH = path.resolve(process.cwd(), 'build/db.js');
   const dbProcess = fork(DATABASE_PATH);
 
   if (cluster.isPrimary) {
